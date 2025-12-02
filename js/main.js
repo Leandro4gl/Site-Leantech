@@ -13,16 +13,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const contactForm = document.getElementById("contact-form");
   const formStatus = document.getElementById("form-status");
 
-  contactForm?.addEventListener("submit", (event) => {
+  contactForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const formData = new FormData(contactForm);
-    const name = formData.get("name");
-
     formStatus.textContent = "Enviando...";
-    setTimeout(() => {
-      formStatus.textContent = `Obrigado, ${name}. Recebemos seu briefing e retornaremos em breve.`;
-      contactForm.reset();
-    }, 600);
+
+    try {
+      const response = await fetch(contactForm.action, {
+        method: contactForm.method,
+        headers: {
+          Accept: "application/json",
+        },
+        body: new FormData(contactForm),
+      });
+
+      if (response.ok) {
+        formStatus.textContent = "Brief enviado! Retornaremos em breve.";
+        contactForm.reset();
+      } else {
+        formStatus.textContent = "Ocorreu um erro. Tente novamente ou fale no WhatsApp.";
+      }
+    } catch (error) {
+      formStatus.textContent = "Sem conexão no momento. Tente novamente mais tarde.";
+    }
   });
 
   const yearNode = document.getElementById("current-year");
